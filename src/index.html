@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link href="index.css" rel="stylesheet" type="text/css">
+    <title>Color Picker</title>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="patches">
+            <div id="contrastPatch">
+                <div></div>
+                <div></div>
+            </div>
+            <div id="contrastPatch2White" class="contrastPatch2"><span></span></div>
+            <div id="contrastPatch2Black" class="contrastPatch2"><span></span></div>
+        </div>
+
+        <div id="coordinate">
+            <div id="colorPanel" class="RGB-R">
+                <div class="colorPanel-cursor"></div>
+            </div>
+            <div id="colorPanel-xAxis" class="slider-h"><div class="slider-cursor"></div></div>
+            <div id="colorPanel-yAxis" class="slider-v"><div class="slider-cursor"></div></div>
+        </div>
+
+        <div id="wheel">
+            <div id="colorWheel">
+                <div id="colorWheel-cover"></div>
+                <div class="colorPanel-cursor"></div>
+            </div>
+            <div class="slider-v" id="HSL-S"><div class="slider-cursor"></div></div>
+            <div class="slider-v" id="HSL-L"><div class="slider-cursor"></div></div>
+        </div>
+
+        <div id="sliderPanel">
+            <div class="slider-h" id="RGB-R"><div class="slider-block"></div></div>
+            <div class="slider-h" id="RGB-G"><div class="slider-block"></div></div>
+            <div class="slider-h" id="RGB-B"><div class="slider-block"></div></div>
+
+            <div class="slider-h" id="HSV-H"><div class="slider-block"></div></div>
+            <div class="slider-h" id="HSV-S"><div class="slider-block"></div></div>
+            <div class="slider-h" id="HSV-V"><div class="slider-block"></div></div>
+        </div>
+
+
+        <div id="alpha-alpha" class="slider-v"><div class="slider-cursor"></div></div>
+
+        <div id="colorSquares"></div>
+        
+        <div id="colorValues" tabindex="1"></div>
+        <input id="colorInput" type="search">
+    </div>
+
+<script type="text/javascript" src="color.js"></script>
+<script type="text/javascript" src="index.js"></script>
+
+</body>
+
+</html>

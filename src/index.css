@@ -1,0 +1,402 @@
+body {
+	margin: 0 auto;
+	padding: 0;
+	width: 900px;
+}
+
+#wrapper {
+	margin-top: 10px;
+	position: relative;
+	display: inline-block;
+	width: 100%;
+}
+
+#colorPanel {
+	position: absolute;
+	top: 0;
+	left: 30px;
+	width: 300px;
+	height: 300px;
+	outline: 2px solid #aaa;
+	cursor: crosshair;
+}
+
+#colorPanel::before {
+	position: absolute;
+	height: 300px;
+	width: 300px;
+	content: "";
+}
+
+#colorPanel.RGB-R {
+	background-blend-mode: screen;
+	background-image: linear-gradient(to right, #000, #0f0);
+}
+
+#colorPanel.RGB-R::before {
+	mix-blend-mode: screen;
+	background: linear-gradient(to top, #000, #00f);
+}
+
+#colorPanel.RGB-G {
+	background-blend-mode: screen;
+	background-image: linear-gradient(to right, #000, #00f);
+}
+
+#colorPanel.RGB-G::before {
+	mix-blend-mode: screen;
+	background: linear-gradient(to top, #000, #f00);
+}
+
+#colorPanel.RGB-B {
+	background-blend-mode: screen;
+	background-image: linear-gradient(to right, #000, #f00);
+}
+
+#colorPanel.RGB-B::before {
+	mix-blend-mode: screen;
+	background: linear-gradient(to top, #000, #0f0);
+}
+
+#colorPanel.HSV-H {
+	background-image: linear-gradient(to right, #fff, transparent);
+}
+
+#colorPanel.HSV-H::before {
+	background: linear-gradient(to top, #000, transparent);
+}
+
+#colorPanel.HSV-S {
+	background-blend-mode: screen;
+	background-image: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+}
+
+#colorPanel.HSV-S::before {
+	background: linear-gradient(to top, #000, transparent);
+}
+
+#colorPanel.HSV-V::before {
+	mix-blend-mode: multiply;
+	background-color: #fff;
+	background-image: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+	-webkit-mask: linear-gradient(to top, transparent, #fff);
+	mask: linear-gradient(to top, transparent, #fff);
+}
+
+.colorPanel-cursor {
+	position: relative;
+	transform: translate(-50%, -50%);
+	outline: 1px solid #ddd;
+	border-radius: 50%;
+	width: 9px;
+	height: 9px;
+	cursor: default;
+	cursor: crosshair;
+	pointer-events: none;
+}
+
+#coordinate .slider-v {
+	height: 300px;
+	width: 15px;
+}
+
+#coordinate .slider-h {
+	height: 15px;
+	width: 300px;
+}
+
+#colorPanel-xAxis {
+	position: absolute;
+	top: 315px;
+	left: 30px;
+}
+
+#colorPanel-yAxis {
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#alpha-alpha {
+	position: absolute;
+	left: 870px;
+	height: 315px;
+	width: 15px;
+}
+
+#wheel {
+	width: 280px;
+	height: 200px;
+	position: absolute;
+	left: 350px;
+	top: 0px;
+	writing-mode: vertical-lr;
+}
+
+#colorWheel {
+	height: 200px;
+	width: 200px;
+	background: conic-gradient(from 90deg, #f00, #f0f, #00f, #0ff, #0f0, #ff0, #f00);
+	border-radius: 50%;
+	outline: 2.5px solid #aaa;
+	cursor: crosshair;
+}
+
+#colorWheel::before {
+	height: 200px;
+	width: 200px;
+	content: "";
+	position: absolute;
+	border-radius: 50%;
+	background: #7f7f7f;
+	-webkit-mask: radial-gradient(100px 100px at center, #fff, transparent);
+	mask: radial-gradient(100px 100px at center, #fff, transparent);
+}
+
+#colorWheel-cover {
+	pointer-events: none;
+	position: absolute;
+	height: 200px;
+	width: 200px;
+	border-radius: 50%;
+}
+
+.slider-v,
+.slider-h {
+	outline: 1px solid #bbb;
+}
+
+#wheel .slider-v {
+	width: 20px;
+	height: 200px;
+	margin-left: 10px;
+}
+
+#sliderPanel {
+	position: absolute;
+	left: 670px;
+	top: 0px;
+	width: 190px;
+}
+
+#sliderPanel .slider-h {
+	height: 15px;
+	margin-bottom: 19px;
+}
+
+.slider-block {
+	position: relative;
+	pointer-events: none;
+	outline: 1px solid #eee;
+}
+
+.slider-h .slider-block {
+	height: 100%;
+	margin-top: 1px;
+	width: 0;
+}
+
+.slider-cursor {
+	position: relative;
+	box-sizing: border-box;
+	border-width: 4px;
+	border-style: solid;
+	pointer-events: none;
+}
+
+.slider-h .slider-cursor {
+	margin: 0 -4px;
+	width: 0px;
+	height: 100%;
+	border-color: #eee transparent;
+}
+
+.slider-v .slider-cursor {
+	margin: -4px 0;
+	width: 100%;
+	height: 0;
+	border-color: transparent #eee;
+}
+
+#HSV-S {
+	background-color: #000;
+}
+
+#HSV-V {
+	background-image: linear-gradient(to right, #000, transparent);
+}
+
+#sliderPanel .slider-h:before {
+	display: block;
+	float: left;
+	margin-left: -18px;
+	margin-top: -1px;
+	color: #333;
+
+	font-family: consolas;
+	font-size: 15px;
+	line-height: 15px;
+	cursor: default;
+}
+
+#RGB-R:before {
+	content: 'R';
+}
+
+#RGB-G:before {
+	content: 'G';
+}
+
+#RGB-B:before {
+	content: 'B';
+}
+
+#HSV-H:before {
+	content: 'H';
+}
+
+#HSV-S:before {
+	content: 'S';
+}
+
+#HSV-V:before {
+	content: 'V';
+}
+
+.dark .colorPanel-cursor,
+.dark .slider-block {
+	outline-color: #333;
+}
+
+.dark .slider-v .slider-cursor {
+	border-color: transparent #333;
+}
+
+.dark .slider-h .slider-cursor {
+	border-color: #333 transparent;
+}
+
+#patches{
+	user-select: none;
+	text-align: center;
+	position: absolute;
+	width: 280px;
+	height: 100px;
+	left: 350px;
+	top: 220px;
+}
+
+#contrastPatch {
+	width: 100%;
+	height: 35px;
+	text-align: center;
+	font-family: consolas;
+	border: 1px solid #ccc;
+	cursor: default;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+
+#contrastPatch div {
+	position: relative;
+	width: 10ex;
+	text-align: left;
+}
+
+#contrastPatch div:nth-child(1) {
+	color: white;
+}
+
+#contrastPatch div:nth-child(2) {
+	color: black;
+}
+
+.contrastPatch2 {
+	display: inline-block;
+	width: 95px;
+	height: 55px;
+	border: 5px solid ;
+	margin: 10px 15px;
+	font-family: consolas;
+	outline: 1px solid #ccc;
+	cursor: default;
+}
+
+#contrastPatch2White{
+	border-color: #fff;
+	background-color: #fff;
+}
+
+#contrastPatch2Black{
+	border-color: #000;
+	background-color: #000
+}
+
+.contrastPatch2 span{
+	width: 100%;
+	height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contrastPatch2 span:hover {
+     color: #aaa;
+	mix-blend-mode: difference;
+}
+
+#colorValues {
+	position: absolute;
+	left: 650px;
+	top: 195px;
+	width: 210px;
+	font-family: consolas;
+	border: 1px solid #ccc;
+	padding: 2px 0px 2px 4px;
+	box-sizing: border-box;
+	font-size: 14px;
+	white-space: pre-wrap;
+	line-height: 16px;
+	cursor: default;
+	user-select: none;
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+	display: none;
+}
+
+#colorInput{
+	position: absolute;
+	left: 650px;
+	height: 20px;
+	width: 210px;
+	top: 315px
+}
+
+#colorSquares {
+	position: absolute;
+	width: 100%;
+	padding: 5px;
+	top: 340px;
+	transition: background-color 0.5s;
+}
+
+#colorSquares div {
+	text-align: center;
+	width: 11em;
+	margin-left: 6px;
+	float: left;
+	border: 1pt solid black;
+	color: black;
+	font-size: small;
+	font-weight: bold;
+	margin: 0.1em;
+	user-select: none;
+	cursor: default;
+}
+
+#colorSquares div:hover {
+	border-color: white;
+	color: white;
+}
