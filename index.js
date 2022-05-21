@@ -12,7 +12,7 @@
 		"HSV-S": { x: 'H', y: 'V' },
 		"HSV-V": { x: 'H', y: 'S' }
 	},
-		startPoint, currentTarget,
+		startPoint, currentTarget, colorSavedPageMax = 10, focusedSquare,
 		colorWheel = document.getElementById('colorWheel'),
 		colorPanel = document.getElementById('colorPanel'),
 
@@ -30,6 +30,7 @@
 		sliderXAxis = document.getElementById('colorPanel-xAxis'),
 		sliderYAxis = document.getElementById('colorPanel-yAxis'),
 		sliderAlphaA = document.getElementById('alpha-alpha'),
+		colorClear = document.getElementById('colorClear'),
 
 		wrapper = document.getElementById('wrapper'),
 		contrastPatch = document.getElementById('contrastPatch'),
@@ -37,62 +38,102 @@
 		contrastPatch2Black = document.getElementById('contrastPatch2Black'),
 		colorValues = document.getElementById('colorValues'),
 		colorSquares = document.getElementById('colorSquares'),
+		colorSquareSaved = document.getElementById('colorSquareSaved'),
+		colorSquareSavedPrev = document.getElementById('cs-prev'),
+		colorSquareSavedNext = document.getElementById('cs-next'),
 		colorWheelCover = document.getElementById('colorWheel-cover'),
 		colorWheelCursor = colorWheel.children[1],
 		colorPanelCursor = colorPanel.children[0],
 		colorInput = document.getElementById('colorInput'),
 		colorWheelRadius = colorWheel.offsetHeight / 2,
-		curColor = window.curColor = new Color("deepskyblue")
-	contrastPatch.onclick = () => { curColor.saveAsBackground(); doRender(curColor) }
-	contrastPatch2Black.onclick = () => { curColor.setBackground("#000"); doRender(curColor) }
-	contrastPatch2White.onclick = () => { curColor.setBackground("#fff"); doRender(curColor) }
+		curColor = window.curColor = new Color(localStorage.getItem("mjcp-fg") || "deepskyblue")
+	curColor.setBackground(localStorage.getItem("mjcp-bg") || "#eee")
+	curColor.onchange = () => {
+		doRender(curColor);
+		localStorage.setItem("mjcp-fg", curColor.HEX);
+		localStorage.setItem("mjcp-bg", curColor.background.HEX);
+	}
 	colorValues.onmousedown = colorValues.onfocus = () => { colorValues.style.userSelect = "auto" }
 	colorValues.onblur = () => { colorValues.style.userSelect = "none" }
+	colorInput.onsearch = () => {
+		if (/:\d/.test(colorInput.value)) {
+			colorSavedPage = +colorInput.value.slice(1)
+			renderSavedColor()
+		} else curColor.setColor(colorInput.value)
+	}
 
 	[
-		'lightpink', 'slateblue', 'cyan', 'lightgreen', 'floralwhite', 'coral',
-		'pink', 'darkslateblue', 'darkturquoise', 'darkseagreen', 'wheat', 'darksalmon',
-		'crimson', 'blue', 'darkcyan', 'honeydew', 'oldlace', 'tomato',
-		'palevioletred', 'mediumblue', 'teal', 'chartreuse', 'orange', 'salmon',
-		'lavenderblush', 'darkblue', 'darkslategray', 'lawngreen', 'moccasin', 'mistyrose',
-		'hotpink', 'navy', 'paleturquoise', 'greenyellow', 'papayawhip', 'red',
-		'deeppink', 'midnightblue', 'lightcyan', 'darkolivegreen', 'blanchedalmond', 'darkred',
-		'mediumvioletred', 'lavender', 'azure', 'yellowgreen', 'navajowhite', 'maroon',
-		'orchid', 'ghostwhite', 'mediumturquoise', 'olivedrab', 'tan', 'firebrick',
-		'fuchsia', 'royalblue', 'lightseagreen', 'yellow', 'antiquewhite', 'brown',
-		'magenta', 'cornflowerblue', 'turquoise', 'olive', 'burlywood', 'indianred',
-		'darkmagenta', 'lightsteelblue', 'aquamarine', 'lightgoldenrodyellow', 'darkorange', 'lightcoral',
-		'purple', 'lightslategray', 'mediumaquamarine', 'lightyellow', 'bisque', 'rosybrown',
-		'violet', 'slategray', 'mediumspringgreen', 'beige', 'linen', 'snow',
-		'plum', 'dodgerblue', 'mintcream', 'ivory', 'peru', 'white',
-		'thistle', 'aliceblue', 'springgreen', 'darkkhaki', 'peachpuff', 'whitesmoke',
-		'mediumorchid', 'steelblue', 'mediumseagreen', 'khaki', 'sandybrown', 'gainsboro',
-		'darkviolet', 'lightskyblue', 'seagreen', 'palegoldenrod', 'saddlebrown', 'lightgray',
-		'darkorchid', 'skyblue', 'lime', 'lemonchiffon', 'chocolate', 'silver',
-		'indigo', 'deepskyblue', 'green', 'gold', 'seashell', 'darkgray',
-		'blueviolet', 'lightblue', 'darkgreen', 'cornsilk', 'sienna', 'gray',
-		'rebeccapurple', 'powderblue', 'limegreen', 'darkgoldenrod', 'lightsalmon', 'dimgray',
-		'mediumpurple', 'cadetblue', 'forestgreen', 'goldenrod', 'orangered', 'black',
-		'mediumslateblue', 'aqua', 'palegreen',].forEach((color) => {
-			var square = document.createElement("div")
-			square.style.backgroundColor = square.innerText = color
-			colorSquares.append(square)
+		'lightpink', 'pink', 'crimson', 'palevioletred', 'lavenderblush', 'hotpink', 'deeppink', 'mediumvioletred', 'orchid', 'fuchsia', 'magenta', 'darkmagenta', 'purple', 'violet', 'plum', 'thistle', 'mediumorchid', 'darkviolet', 'darkorchid', 'indigo', 'blueviolet', 'rebeccapurple', 'mediumpurple', 'mediumslateblue', 'slateblue', 'darkslateblue', 'blue', 'mediumblue', 'darkblue', 'navy', 'midnightblue', 'lavender', 'ghostwhite', 'royalblue', 'cornflowerblue', 'lightsteelblue', 'lightslategray', 'slategray', 'dodgerblue', 'aliceblue', 'steelblue', 'lightskyblue', 'skyblue', 'deepskyblue', 'lightblue', 'powderblue', 'cadetblue', 'aqua', 'cyan', 'darkturquoise', 'darkcyan', 'teal', 'darkslategray', 'paleturquoise', 'lightcyan', 'azure', 'mediumturquoise', 'lightseagreen', 'turquoise', 'aquamarine', 'mediumaquamarine', 'mediumspringgreen', 'mintcream', 'springgreen', 'mediumseagreen', 'seagreen', 'lime', 'green', 'darkgreen', 'limegreen', 'forestgreen', 'palegreen', 'lightgreen', 'darkseagreen', 'honeydew', 'chartreuse', 'lawngreen', 'greenyellow', 'darkolivegreen', 'yellowgreen', 'olivedrab', 'yellow', 'olive', 'lightgoldenrodyellow', 'lightyellow', 'beige', 'ivory', 'darkkhaki', 'khaki', 'palegoldenrod', 'lemonchiffon', 'gold', 'cornsilk', 'darkgoldenrod', 'goldenrod', 'floralwhite', 'wheat', 'oldlace', 'orange', 'moccasin', 'papayawhip', 'blanchedalmond', 'navajowhite', 'tan', 'antiquewhite', 'burlywood', 'darkorange', 'bisque', 'linen', 'peru', 'peachpuff', 'sandybrown', 'saddlebrown', 'chocolate', 'seashell', 'sienna', 'lightsalmon', 'orangered', 'coral', 'darksalmon', 'tomato', 'salmon', 'mistyrose', 'red', 'darkred', 'maroon', 'firebrick', 'brown', 'indianred', 'lightcoral', 'rosybrown', 'snow', 'white', 'whitesmoke', 'gainsboro', 'lightgray', 'silver', 'darkgray', 'gray', 'dimgray', 'black'
+	].forEach((color) => {
+		let square = document.createElement("div")
+		square.className = "colorSquare"
+		square.style.backgroundColor = square.dataset.name = color
+		colorSquares.append(square)
+	})
+
+	for (i = 0; i < 19; i++) {
+		let square = document.createElement("div")
+		square.className = "colorSquare"
+		square.id = "cs-" + i
+		colorSquareSaved.append(square)
+	}
+	focusedSquare = document.getElementById("cs-0")
+	focusedSquare.style.borderWidth = "3px"
+	let colorSavedPage = 0
+	let savedColor = (localStorage.getItem("mjcp-colors") || "").split(";")
+		.concat(Array(colorSavedPageMax).fill("")).slice(0, colorSavedPageMax)
+		.map(a => a.split(",").concat(Array(19).fill("")).slice(0, 19))
+
+	function saveColor(ele, color, page) {
+		page = page || colorSavedPage
+		if (color == null) color = "#" + curColor.HEX
+		if (window.Color.prototype.parse(color)[0].alpha == 0) color = ""
+		if (ele == null) ele = savedColor[page].indexOf("")
+		if (ele == -1) return
+		if (ele.id) ele = +ele.id.split("-")[1]
+		savedColor[page][ele] = color
+		localStorage.setItem("mjcp-colors", savedColor.map(a => a.join(",").replace(/,+$/, "")).join(";").replace(/;+$/, ""))
+		renderSavedColor()
+	}
+
+	function renderSavedColor() {
+		savedColor[colorSavedPage].forEach((col, i) => {
+			let square = document.getElementById("cs-" + i)
+			square.dataset.name = square.style.backgroundColor = col
+			if (!col) delete square.dataset.name
 		})
+	}
+	renderSavedColor()
 
 	window.addEventListener('mousedown', sliderDown);
 	window.addEventListener('mouseup', function () {
 		window.removeEventListener('mousemove', sliderMove);
 	});
-
-	colorInput.addEventListener('search', (e) => {
-		curColor.setColor(colorInput.value)
-		doRender(curColor)
+	window.addEventListener('contextmenu', (e) => {
+		if (e.target !== colorValues) e.preventDefault()
 	})
+
 
 	function sliderDown(e) {
 		if (e.target.parentNode === colorSquares) {
-			curColor.setColor(e.target.style.backgroundColor);
-			doRender(curColor)
+			curColor[e.button == 2 ? "setBackground" : "setColor"](e.target.dataset.name)
+		} else if (e.target === colorClear) {
+			curColor[e.button == 2 ? "setBackground" : "setColor"]("transparent")
+		} else if (e.target === colorSquareSavedPrev) {
+			colorSavedPage = (colorSavedPageMax + colorSavedPage - 1) % colorSavedPageMax
+			renderSavedColor()
+		} else if (e.target === colorSquareSavedNext) {
+			colorSavedPage = (colorSavedPage + 1) % colorSavedPageMax
+			renderSavedColor()
+		} else if (e.target.parentNode === colorSquareSaved) {
+			if (e.target !== focusedSquare && e.button == 0) {
+				focusedSquare.style.borderWidth = ""
+				focusedSquare = e.target
+				focusedSquare.style.borderWidth = "3px"
+			}
+			curColor[e.button == 2 ? "setBackground" : "setColor"](e.target.dataset.name || "transparent")
+		} else if (e.target === contrastPatch) {
+			e.button == 2 ? curColor.saveAsBackground() : saveColor()
 		} else {
 			currentTarget = e.target
 			startPoint = {
@@ -118,23 +159,19 @@
 			model = colorPanel.className.split("-")[0]
 			channel = panelAxis[colorPanel.className].x
 			curColor.setColor({ [channel]: x / w * valueRanges[model][channel] }, model);
-			doRender(curColor)
 		} else if (currentTarget === sliderYAxis) {
 			e.preventDefault()
 			model = colorPanel.className.split("-")[0]
 			channel = panelAxis[colorPanel.className].y
 			curColor.setColor({ [channel]: y / h * valueRanges[model][channel] }, model);
-			doRender(curColor)
 		} else if (currentTarget.className == "slider-h") {
 			e.preventDefault();
-			[model, channel] = currentTarget.id.split("-")
+			[model, channel] = currentTarget.id.split("-");
 			curColor.setColor({ [channel]: x / w * valueRanges[model][channel] }, model);
-			doRender(curColor)
 		} else if (currentTarget.className == "slider-v") {
 			e.preventDefault();
 			[model, channel] = currentTarget.id.split("-");
 			curColor.setColor({ [channel]: y / h * valueRanges[model][channel] }, model);
-			doRender(curColor)
 		} else if (currentTarget === colorWheel) {
 			x = x - w / 2
 			y = y - h / 2
@@ -142,7 +179,6 @@
 				H: (y < 0 ? 360 : 0) + (Math.atan2(y, x) * 180 / Math.PI),
 				S: (Math.sqrt((x * x) + (y * y)) / (w / 2)) * 100
 			}, 'HSL');
-			doRender(curColor)
 		} else if (currentTarget === colorPanel) {
 			model = currentTarget.className.split("-")[0]
 			channel = currentTarget.className
@@ -150,7 +186,7 @@
 				[panelAxis[channel].x]: (e.pageX - startPoint.left) / currentTarget.offsetWidth * valueRanges[model][panelAxis[channel].x],
 				[panelAxis[channel].y]: (1 - (e.pageY - startPoint.top) / currentTarget.offsetHeight) * valueRanges[model][panelAxis[channel].y]
 			}, model);
-			doRender(curColor)
+
 		}
 	}
 
@@ -197,12 +233,13 @@ hsl(${color.HSL.H},${color.HSL.S}%, 90%),
 hsl(${color.HSL.H},${color.HSL.S}%,100%)`
 
 
-		colorSquares.style.backgroundColor = contrastPatch.style.backgroundColor = contrastPatch2Black.style.color = contrastPatch2White.style.color = color_color
+		contrastPatch.style.backgroundColor = contrastPatch2Black.style.color = contrastPatch2White.style.color = color_color
 		contrastPatch.children[0].innerText = contrastPatch.children[1].innerText =
 			contrastPatch2White.children[0].innerText = contrastPatch2Black.children[0].innerText = '#' + color.HEX;
 		contrastPatch2White.style.backgroundImage = contrastPatch2Black.style.backgroundImage = `linear-gradient(to right, ${color_BG} 50%, transparent 50%)`
+		colorSquares.style.backgroundColor = colorSquareSaved.style.backgroundColor = color_BG
 
-		colorValues.innerText = `#${color.HEX} ${color.cssName || ''}
+		colorValues.innerText = `#${color.HEX}${color.cssName ? ' ' + color.cssName : ''}
 rgba(${color.RGB.R},${color.RGB.G},${color.RGB.B},${color.Alpha})
 hsva(${color.HSV.H},${color.HSV.S},${color.HSV.V},${color.Alpha})
 hsla(${color.HSL.H},${color.HSL.S},${color.HSL.L},${color.Alpha})
@@ -246,6 +283,8 @@ Lab(${color.Lab.L},${color.Lab.a},${color.Lab.b})`
 
 		colorWheelCursor.style.left = (x * r + colorWheelRadius) + 'px'
 		colorWheelCursor.style.top = (y * r + colorWheelRadius) + 'px'
+
+		saveColor(focusedSquare)
 
 		sliderXAxis.children[0].style.left =
 			colorPanelCursor.style.left = 100 * color[colorPanel.className.split("-")[0].toLocaleLowerCase()][panelAxis[colorPanel.className].x.toLocaleLowerCase()] + '%'

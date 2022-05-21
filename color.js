@@ -61,17 +61,23 @@
 
     class Color {
         constructor(color = "#fff", model) {
-            this.setValue({ r: 0, g: 0, b: 0 })
             this.background = {}
+            this.setValue({ r: 0, g: 0, b: 0 })
             this.setBackground("#fff")
             this.setColor(color, model)
-            this.alpha = 1
         }
 
         static cssColors = cssColors
 
+        /**
+        * parse color string
+        * @param {String|colorObj} color
+        * @param {String} [model]
+        * @return {Array<colorObjWithAlpha, String>} `[color, model]`
+        */
         parse(color, model) {
-            if (!color) return
+            if (!color) return [{ ...this.rgb, alpha: this.alpha }, "rgb"]
+            if (color == "transparent") return [{ ...this.rgb, alpha: 0 }, "rgb"]
             if (model && !(_fullName[model] || _valueRanges[model])) throw "Invalid color model"
             if (typeof color == "string") {
                 if (cssColors[color]) color = cssColors[color]
@@ -88,10 +94,17 @@
                     color = this.HEX2RGB(color)
                     model = "RGB"
                 }
+            } else if (typeof color == "object" && !model) {
+                let _m = [...Object.keys(_fullName), ...Object.values(_fullName)].filter(x => x != "alpha" && x != "Alpha"),
+                    _c = Object.keys(color).filter(x => x != "alpha" && x != "Alpha")
+                model = _m.filter(m => _c.every(c => m.includes(c)) && m.split("").every(c => _c.includes(c)))[0]
+                if (!model) throw "Invalid color model"
             }
             if (model == "alpha") model = "RGB"
 
-            let alpha = color.alpha == 0 ? 0 : color.alpha || 1
+            let alpha = color.alpha
+            if (alpha == null) alpha = this.alpha
+            if (alpha == null) alpha = 1
             alpha = _limitValue(alpha, [0, 1])
 
             let _color = {}
@@ -104,32 +117,55 @@
             return [_color, model]
         }
 
-        parseStrict(color, model) {
-            let _color = {}
-            for (let channel of model) {
-                _color[channel] = color[channel] || (this[model] && this[model][channel]) || 0
-                if (color[channel] == 0) _color[channel] = 0
-                _color[channel] = _limitValue(_color[channel], _valueRanges[model] ? _valueRanges[model][channel] : [0, 1])
-            }
-            return _color
-        }
-
+        /**
+        * general set color method
+        * @param {String|colorObj} color
+        * @param {String} [model]
+        * @return {Color} `this`
+        */
         setColor(color, model) {
             [color, model] = this.parse(color, model);
+            let alpha = color.alpha;
             [color, model] = this.scale(color, -1);
-            this[model] = this.parseStrict(color, model);
+            this[model] = color;
             if (model == "hsl") this.hsv.h = color.h
             let rgb = this[model + "2rgb"](color)
-            this.setValue(rgb)
-            return (this)
+            this.setValue(rgb, alpha)
+            return this
         }
 
+        /**
+        * set background color value
+        * @param {String|colorObj} color
+        * @param {String} [model]
+        */
+        setBackground(color, model) {
+            [color, model] = this.parse(color, model);
+            let alpha = color.alpha;
+            [color, model] = this.scale(color, -1);
+            let rgb = this[model + "2rgb"](color)
+            this.setBackgroundValue(rgb, alpha)
+        }
+
+        /**
+        * save foreground color as background
+        */
+        saveAsBackground() {
+            this.setBackgroundValue(this.rgb, this.alpha)
+        }
+
+        /**
+        * set foreground color value
+        * @param {colorObj_rgba} rgb
+        * @param {Number} [alpha]
+        */
         setValue(rgb, alpha) {
-            this.alpha = alpha || (rgb && rgb.alpha) || this.alpha
-            if (alpha == 0 || (rgb && rgb.alpha) == 0) this.alpha = 0
-            this.Alpha = Math.round(this.alpha * 100) / 100
+            if (typeof alpha == "number") {
+                this.alpha = _limitValue(alpha, [0, 1])
+                this.Alpha = Math.round(this.alpha * 100) / 100
+            }
             if (rgb) {
-                rgb = { r: rgb.r, g: rgb.g, b: rgb.b }
+                rgb = this.rgb2rgb(rgb)
                 for (let model of ["rgb", "hsv", "hsl", 'lab', "xyz", "cmy", "cmyk"]) {
                     this[model] = this["rgb2" + model](rgb)
                 }
@@ -140,26 +176,36 @@
                 this.Luminance = this.getLuminance(rgb)
                 this.EquivalentGray = this.getEquivalentGray(rgb)
                 this.hueRGB = this.scale(this.hsv2rgb({ h: this.hsv.h, s: 1, v: 1 }), 1)[0]
-                this.cssName = Object.keys(cssColors).filter(x => cssColors[x] == "#" + this.HEX.toLowerCase())[0]
+                this.cssName = Object.keys(cssColors).filter(x => cssColors[x] == "#" + this.HEX.toLowerCase())[0] || this.alpha == 0 ? "transparent" : null
             }
+            if (this.onchange) this.onchange()
         }
 
-        setBackground(color, model) {
-            [color, model] = this.parse(color, model);
-            [color, model] = this.scale(color, -1);
-            this.background.alpha = color.alpha
-            let rgb = this[model + "2rgb"](color)
-            this.background.rgb = rgb
-            this.background.RGB = this.scale(rgb, 1)[0]
-        }
-        saveAsBackground() {
-            this.background.rgb = this.rgb
-            this.background.RGB = this.RGB
-            this.background.alpha = this.alpha
+        /**
+        * set foreground color value
+        * @param {colorObj_rgb} rgb
+        * @param {Number} [alpha]
+        */
+        setBackgroundValue(rgb, alpha) {
+            if (typeof alpha == "number") {
+                this.background.alpha = _limitValue(alpha, [0, 1])
+            }
+            if (rgb) {
+                rgb = this.rgb2rgb(rgb)
+                this.background.rgb = rgb
+                this.background.RGB = this.scale(rgb, 1)[0]
+                this.background.HEX = this.RGB2HEX(this.background.RGB, this.background.alpha)
+            }
+            if (this.onchange) this.onchange()
         }
 
-        scale(value, scaleTo = 0, noAlpha) {
-            let alpha = value.alpha
+        /**
+        * color model scale
+        * @param {colorObj} value
+        * @param {(String|Number)} [scaleTo = 0] - color model scaled to, -1: lowercase, 1: uppercase, 0(default): trigger
+        * @return {Array<colorObjWithOutAlpha, String>} `[color, model]`
+        */
+        scale(value, scaleTo = 0) {
             delete value.alpha
             let modelFrom, modelTo, _model, _value = {}
             if (typeof scaleTo == "string") {
@@ -194,7 +240,6 @@
                         _value[channel] = Math.round(_value[channel] * 100) / 100
                 }
             }
-            if (alpha && !noAlpha) _value.alpha = alpha
             return [_value, modelTo]
         }
 
@@ -230,7 +275,13 @@
             ).toUpperCase();
         }
 
-        rgb2rgb(rgb) { return rgb }
+        rgb2rgb(rgb) {
+            return {
+                r: _limitValue(rgb.r, [0, 1]),
+                g: _limitValue(rgb.g, [0, 1]),
+                b: _limitValue(rgb.b, [0, 1])
+            }
+        }
 
         rgb2hsv(rgb) {
             var r = rgb.r, g = rgb.g, b = rgb.b,
