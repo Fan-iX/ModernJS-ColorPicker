@@ -12,7 +12,7 @@
 		"HSV-S": { x: 'H', y: 'V' },
 		"HSV-V": { x: 'H', y: 'S' }
 	},
-		startPoint, currentTarget, colorSavedPageMax = 10, focusedSquare,
+		startPoint, currentTarget, colorSavedPage = 0, colorSavedPageMax = 10, focusedSquare,
 		colorWheel = document.getElementById('colorWheel'),
 		colorPanel = document.getElementById('colorPanel'),
 
@@ -30,7 +30,8 @@
 		sliderXAxis = document.getElementById('colorPanel-xAxis'),
 		sliderYAxis = document.getElementById('colorPanel-yAxis'),
 		sliderAlphaA = document.getElementById('alpha-alpha'),
-		colorClear = document.getElementById('colorClear'),
+		alphaMin = document.getElementById('alpha-min'),
+		alphaMax = document.getElementById('alpha-max'),
 
 		wrapper = document.getElementById('wrapper'),
 		contrastPatch = document.getElementById('contrastPatch'),
@@ -45,22 +46,7 @@
 		colorWheelCursor = colorWheel.children[1],
 		colorPanelCursor = colorPanel.children[0],
 		colorInput = document.getElementById('colorInput'),
-		colorWheelRadius = colorWheel.offsetHeight / 2,
-		curColor = window.curColor = new Color(localStorage.getItem("mjcp-fg") || "deepskyblue")
-	curColor.setBackground(localStorage.getItem("mjcp-bg") || "#eee")
-	curColor.onchange = () => {
-		doRender(curColor);
-		localStorage.setItem("mjcp-fg", curColor.HEX);
-		localStorage.setItem("mjcp-bg", curColor.background.HEX);
-	}
-	colorValues.onmousedown = colorValues.onfocus = () => { colorValues.style.userSelect = "auto" }
-	colorValues.onblur = () => { colorValues.style.userSelect = "none" }
-	colorInput.onsearch = () => {
-		if (/:\d/.test(colorInput.value)) {
-			colorSavedPage = +colorInput.value.slice(1)
-			renderSavedColor()
-		} else curColor.setColor(colorInput.value)
-	}
+		colorWheelRadius = colorWheel.offsetHeight / 2;
 
 	[
 		'lightpink', 'pink', 'crimson', 'palevioletred', 'lavenderblush', 'hotpink', 'deeppink', 'mediumvioletred', 'orchid', 'fuchsia', 'magenta', 'darkmagenta', 'purple', 'violet', 'plum', 'thistle', 'mediumorchid', 'darkviolet', 'darkorchid', 'indigo', 'blueviolet', 'rebeccapurple', 'mediumpurple', 'mediumslateblue', 'slateblue', 'darkslateblue', 'blue', 'mediumblue', 'darkblue', 'navy', 'midnightblue', 'lavender', 'ghostwhite', 'royalblue', 'cornflowerblue', 'lightsteelblue', 'lightslategray', 'slategray', 'dodgerblue', 'aliceblue', 'steelblue', 'lightskyblue', 'skyblue', 'deepskyblue', 'lightblue', 'powderblue', 'cadetblue', 'aqua', 'cyan', 'darkturquoise', 'darkcyan', 'teal', 'darkslategray', 'paleturquoise', 'lightcyan', 'azure', 'mediumturquoise', 'lightseagreen', 'turquoise', 'aquamarine', 'mediumaquamarine', 'mediumspringgreen', 'mintcream', 'springgreen', 'mediumseagreen', 'seagreen', 'lime', 'green', 'darkgreen', 'limegreen', 'forestgreen', 'palegreen', 'lightgreen', 'darkseagreen', 'honeydew', 'chartreuse', 'lawngreen', 'greenyellow', 'darkolivegreen', 'yellowgreen', 'olivedrab', 'yellow', 'olive', 'lightgoldenrodyellow', 'lightyellow', 'beige', 'ivory', 'darkkhaki', 'khaki', 'palegoldenrod', 'lemonchiffon', 'gold', 'cornsilk', 'darkgoldenrod', 'goldenrod', 'floralwhite', 'wheat', 'oldlace', 'orange', 'moccasin', 'papayawhip', 'blanchedalmond', 'navajowhite', 'tan', 'antiquewhite', 'burlywood', 'darkorange', 'bisque', 'linen', 'peru', 'peachpuff', 'sandybrown', 'saddlebrown', 'chocolate', 'seashell', 'sienna', 'lightsalmon', 'orangered', 'coral', 'darksalmon', 'tomato', 'salmon', 'mistyrose', 'red', 'darkred', 'maroon', 'firebrick', 'brown', 'indianred', 'lightcoral', 'rosybrown', 'snow', 'white', 'whitesmoke', 'gainsboro', 'lightgray', 'silver', 'darkgray', 'gray', 'dimgray', 'black'
@@ -71,6 +57,15 @@
 		colorSquares.append(square)
 	})
 
+	colorValues.onmousedown = colorValues.onfocus = () => { colorValues.style.userSelect = "auto" }
+	colorValues.onblur = () => { colorValues.style.userSelect = "none" }
+	colorInput.onsearch = () => {
+		if (/:\d/.test(colorInput.value)) {
+			colorSavedPage = +colorInput.value.slice(1)
+			renderSavedColor()
+		} else curColor.setColor(colorInput.value)
+	}
+
 	for (i = 0; i < 19; i++) {
 		let square = document.createElement("div")
 		square.className = "colorSquare"
@@ -79,10 +74,17 @@
 	}
 	focusedSquare = document.getElementById("cs-0")
 	focusedSquare.style.borderWidth = "3px"
-	let colorSavedPage = 0
-	let savedColor = (localStorage.getItem("mjcp-colors") || "").split(";")
+	
+	let savedColor = (localStorage.getItem("mjcp-colors") || "deepskyblue").split(";")
 		.concat(Array(colorSavedPageMax).fill("")).slice(0, colorSavedPageMax)
 		.map(a => a.split(",").concat(Array(19).fill("")).slice(0, 19))
+	let curColor = window.curColor = new Color(savedColor[0][0])
+	curColor.setBackground(localStorage.getItem("mjcp-bg") || "#eee")
+	curColor.onchange = () => {
+		doRender(curColor);
+		localStorage.setItem("mjcp-fg", curColor.HEX);
+		localStorage.setItem("mjcp-bg", curColor.background.HEX);
+	}
 
 	function saveColor(ele, color, page) {
 		page = page || colorSavedPage
@@ -117,8 +119,10 @@
 	function sliderDown(e) {
 		if (e.target.parentNode === colorSquares) {
 			curColor[e.button == 2 ? "setBackground" : "setColor"](e.target.dataset.name)
-		} else if (e.target === colorClear) {
+		} else if (e.target === alphaMin) {
 			curColor[e.button == 2 ? "setBackground" : "setColor"]("transparent")
+		} else if (e.target === alphaMax) {
+			curColor[e.button == 2 ? "setBackground" : "setColor"]({ alpha: 1 }, "alpha")
 		} else if (e.target === colorSquareSavedPrev) {
 			colorSavedPage = (colorSavedPageMax + colorSavedPage - 1) % colorSavedPageMax
 			renderSavedColor()
@@ -193,6 +197,7 @@
 	function doRender(color) {
 		let BG = color.background,
 			color_color = `rgba(${color.RGB.R},${color.RGB.G},${color.RGB.B},${color.alpha})`,
+			color_RGB = `rgb(${color.RGB.R},${color.RGB.G},${color.RGB.B})`,
 			color_BG = `rgba(${BG.RGB.R},${BG.RGB.G},${BG.RGB.B},${BG.alpha})`,
 			gradient_rgbR = `rgb(0,${color.RGB.G},${color.RGB.B}),rgb(255,${color.RGB.G},${color.RGB.B})`,
 			gradient_rgbG = `rgb(${color.RGB.R},0,${color.RGB.B}),rgb(${color.RGB.R},255,${color.RGB.B})`,
@@ -262,7 +267,8 @@ Lab(${color.Lab.L},${color.Lab.a},${color.Lab.b})`
 
 
 		sliderAlphaA.style.backgroundColor = color_BG
-		sliderAlphaA.style.backgroundImage = `linear-gradient(to top, transparent, rgb(${color.RGB.R},${color.RGB.G},${color.RGB.B})`
+		sliderAlphaA.style.backgroundImage = `linear-gradient(to top, transparent, ${color_RGB}`
+		alphaMax.style.backgroundColor = color_RGB
 
 		sliderRgbR.children[0].style.left = 100 * color.rgb.r + '%'
 		sliderRgbG.children[0].style.left = 100 * color.rgb.g + '%'

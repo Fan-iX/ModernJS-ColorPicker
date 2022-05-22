@@ -117,20 +117,28 @@ body {
 	left: 0;
 }
 
-#alpha-alpha {
+#alphaPanel {
 	position: absolute;
 	left: 870px;
-	height: 315px;
+	height: 333px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between
+}
+
+#alpha-alpha {
+	height: 290px;
 	width: 15px;
 }
 
-#colorClear {
-	position: absolute;
-	left: 870px;
-	top: 318px;
+#alpha-max,
+#alpha-min {
 	height: 15px;
 	width: 15px;
 	outline: 1px solid #ccc;
+}
+
+#alpha-min {
 	background-image:
 		linear-gradient(to right, #888 50%, transparent 50%),
 		linear-gradient(to top, #888 50%, transparent 50%);
