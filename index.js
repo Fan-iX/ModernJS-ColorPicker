@@ -78,7 +78,7 @@
 	let savedColor = (localStorage.getItem("mjcp-colors") || "deepskyblue").split(";")
 		.concat(Array(colorSavedPageMax).fill("")).slice(0, colorSavedPageMax)
 		.map(a => a.split(",").concat(Array(19).fill("")).slice(0, 19))
-	let curColor = window.curColor = new Color(savedColor[0][0])
+	let curColor = window.curColor = new Color(savedColor[0][0]||"#7f7f7f00")
 	curColor.setBackground(localStorage.getItem("mjcp-bg") || "#eee")
 	curColor.onchange = () => {
 		doRender(curColor);
@@ -293,9 +293,9 @@ Lab(${color.Lab.L},${color.Lab.a},${color.Lab.b})`
 		saveColor(focusedSquare)
 
 		sliderXAxis.children[0].style.left =
-			colorPanelCursor.style.left = 100 * color[colorPanel.className.split("-")[0].toLocaleLowerCase()][panelAxis[colorPanel.className].x.toLocaleLowerCase()] + '%'
+			colorPanelCursor.style.left = 100 * color[colorPanel.className.split("-")[0].toLowerCase()][panelAxis[colorPanel.className].x.toLowerCase()] + '%'
 		sliderYAxis.children[0].style.top =
-			colorPanelCursor.style.top = 100 * (1 - color[colorPanel.className.split("-")[0].toLocaleLowerCase()][panelAxis[colorPanel.className].y.toLocaleLowerCase()]) + '%'
+			colorPanelCursor.style.top = 100 * (1 - color[colorPanel.className.split("-")[0].toLowerCase()][panelAxis[colorPanel.className].y.toLowerCase()]) + '%'
 
 		if (colorPanel.className == 'RGB-R') {
 			colorPanel.style.backgroundColor = `rgb(${color.RGB.R},0,0)`

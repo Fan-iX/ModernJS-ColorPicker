@@ -176,7 +176,7 @@
                 this.Luminance = this.getLuminance(rgb)
                 this.EquivalentGray = this.getEquivalentGray(rgb)
                 this.hueRGB = this.scale(this.hsv2rgb({ h: this.hsv.h, s: 1, v: 1 }), 1)[0]
-                this.cssName = Object.keys(cssColors).filter(x => cssColors[x] == "#" + this.HEX.toLowerCase())[0] || this.alpha == 0 ? "transparent" : null
+                this.cssName = this.alpha == 0 ? "transparent" : Object.keys(cssColors).filter(x => cssColors[x] == "#" + this.HEX.toLowerCase())[0]
             }
             if (this.onchange) this.onchange()
         }
