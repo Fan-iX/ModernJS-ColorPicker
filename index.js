@@ -74,11 +74,11 @@
 	}
 	focusedSquare = document.getElementById("cs-0")
 	focusedSquare.style.borderWidth = "3px"
-	
+
 	let savedColor = (localStorage.getItem("mjcp-colors") || "deepskyblue").split(";")
 		.concat(Array(colorSavedPageMax).fill("")).slice(0, colorSavedPageMax)
 		.map(a => a.split(",").concat(Array(19).fill("")).slice(0, 19))
-	let curColor = window.curColor = new Color(savedColor[0][0]||"#7f7f7f00")
+	let curColor = window.curColor = new Color(savedColor[0][0] || "#7f7f7f00")
 	curColor.setBackground(localStorage.getItem("mjcp-bg") || "#eee")
 	curColor.onchange = () => {
 		doRender(curColor);
@@ -244,13 +244,34 @@ hsl(${color.HSL.H},${color.HSL.S}%,100%)`
 		contrastPatch2White.style.backgroundImage = contrastPatch2Black.style.backgroundImage = `linear-gradient(to right, ${color_BG} 50%, transparent 50%)`
 		colorSquares.style.backgroundColor = colorSquareSaved.style.backgroundColor = color_BG
 
-		colorValues.innerText = `#${color.HEX}${color.cssName ? ' ' + color.cssName : ''}
-rgba(${color.RGB.R},${color.RGB.G},${color.RGB.B},${color.Alpha})
-hsva(${color.HSV.H},${color.HSV.S},${color.HSV.V},${color.Alpha})
-hsla(${color.HSL.H},${color.HSL.S},${color.HSL.L},${color.Alpha})
-CMYK(${color.CMYK.C},${color.CMYK.M},${color.CMYK.Y},${color.CMYK.K})
-CMY(${color.CMY.C},${color.CMY.M},${color.CMY.Y})
-Lab(${color.Lab.L},${color.Lab.a},${color.Lab.b})`
+		colorValues.innerText = ''
+		function selfSelectSpan(innerText) {
+			let span = document.createElement("span")
+			span.onclick = function () {
+				let selection = window.getSelection();
+				let range = document.createRange();
+				range.selectNodeContents(this);
+				selection.removeAllRanges();
+				selection.addRange(range);
+			}
+			span.innerText=innerText
+			return span
+		}
+		colorValues.append(selfSelectSpan("#"+color.HEX))
+		colorValues.append(" ")
+		colorValues.append(selfSelectSpan(color.cssName))
+		colorValues.append("\n")
+		colorValues.append(selfSelectSpan(`rgba(${color.RGB.R},${color.RGB.G},${color.RGB.B},${color.Alpha})`))
+		colorValues.append("\n")
+		colorValues.append(selfSelectSpan(`hsva(${color.HSV.H},${color.HSV.S},${color.HSV.V},${color.Alpha})`))
+		colorValues.append("\n")
+		colorValues.append(selfSelectSpan(`hsla(${color.HSL.H},${color.HSL.S},${color.HSL.L},${color.Alpha})`))
+		colorValues.append("\n")
+		colorValues.append(selfSelectSpan(`CMYK(${color.CMYK.C},${color.CMYK.M},${color.CMYK.Y},${color.CMYK.K})`))
+		colorValues.append("\n")
+		colorValues.append(selfSelectSpan(`CMY(${color.CMY.C},${color.CMY.M},${color.CMY.Y})`))
+		colorValues.append("\n")
+		colorValues.append(selfSelectSpan(`Lab(${color.Lab.L},${color.Lab.a},${color.Lab.b})`))
 
 		wrapper.className = color.Luminance > 0.22 ? 'dark' : 'light'
 
