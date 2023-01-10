@@ -254,12 +254,12 @@ hsl(${color.HSL.H},${color.HSL.S}%,100%)`
 				selection.removeAllRanges();
 				selection.addRange(range);
 			}
-			span.innerText=innerText
+			span.innerText = innerText
 			return span
 		}
-		colorValues.append(selfSelectSpan("#"+color.HEX))
+		colorValues.append(selfSelectSpan("#" + color.HEX))
 		colorValues.append(" ")
-		colorValues.append(selfSelectSpan(color.cssName))
+		colorValues.append(selfSelectSpan(color.cssName || ""))
 		colorValues.append("\n")
 		colorValues.append(selfSelectSpan(`rgba(${color.RGB.R},${color.RGB.G},${color.RGB.B},${color.Alpha})`))
 		colorValues.append("\n")
